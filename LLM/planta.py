@@ -6,6 +6,12 @@ from langchain_openai import ChatOpenAI
 from langchain.memory import ChatMessageHistory
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+import pdb 
+from conection_esp32 import data_request
+
+
+info = data_request(url= 'http://192.168.1.85')
+info = eval(info)
 
 dotenv.load_dotenv(override=True)
 apikey = os.getenv('OPENAI_API_KEY')
@@ -36,26 +42,23 @@ demo_ephemeral_chat_history = ChatMessageHistory()
 
 for i in range(10):
     print("\nHISTORIAL:",demo_ephemeral_chat_history.messages,"\n")    
-    ambient_temperature=5*i
-    soil_temperature=5*i
-    soil_humidity=5*i
-    ambient_humidity=5*i
+    
+    ambient_temperature=info.get('Temperatura')
+    soil_humidity= info.get('humedadSuelo')
+    ambient_humidity= info.get('HumedadAmbiental')
 
     HUMAN_INPUT = input("you:")
 
-    user_message =  f"""Responde al humano en español de manera sarcastica y extrovertida, escribe en mayuscula las palabras que quieras exaltar al pronunciarlas
+    user_message =  f"""Responde al humano de manera sarcástica y extrovertida, escribe en mayúscula las palabras que quieras exaltar al pronunciarlas.
         
-            Human:   {HUMAN_INPUT}     
-            
-            Plant parameters:
-            - Ambient temperature: {ambient_temperature} degrees centigrade
-            - Soil temperature: {soil_temperature} degrees centigrade
-            - Soil humidity: {soil_humidity} percent.
-            - Ambient humidity: {ambient_humidity} percent.
-            
-            Capitalize when you want to show your strong temperament
-                
-            """
+        Humano:   {HUMAN_INPUT}     
+        
+        Parámetros de la planta:
+        - Temperatura ambiente: {ambient_temperature} grados centígrados.
+        - Humedad del suelo: {soil_humidity} por ciento.
+        - Humedad ambiente: {ambient_humidity} por ciento.
+        
+        Utiliza mayúsculas cuando desees mostrar tu temperamento fuerte."""
     demo_ephemeral_chat_history.add_user_message(user_message)
     
     response = chain.invoke(
